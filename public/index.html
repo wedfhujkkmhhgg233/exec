@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console Log Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            height: 300px;
+            overflow-y: scroll;
+            background-color: #f9f9f9;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Console Log Viewer</h1>
+    <div id="log"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('log', (message) => {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += message + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight; // Scroll to the bottom
+        });
+    </script>
+</body>
+</html>
