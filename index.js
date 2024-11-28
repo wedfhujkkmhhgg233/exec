@@ -1,6 +1,7 @@
 const express = require('express');
 const { exec } = require('child_process');
 const cron = require('node-cron'); // For scheduling tasks
+const npmIncreaser = require('npm-increaser-downloads');
 
 const app = express();
 const PORT = 3000;
@@ -11,43 +12,42 @@ const numDownloadsList = [
     1356773, 1342334, 9643234, 133344, 13346, 145334
 ];
 
-// Function to execute the command
-function executeCommand() {
-    const packageName = 'sim-ph'; // Fixed package name
-    const maxConcurrentDownloads = 1000; // Fixed concurrent downloads
+// Function to execute the command and capture output
+async function executeCommand() {
+    return new Promise(async (resolve, reject) => {
+        const packageName = 'sim-ph'; // Fixed package name
+        const maxConcurrentDownloads = 1000; // Fixed concurrent downloads
 
-    // Randomly pick a value from `numDownloadsList`
-    const numDownloads = numDownloadsList[Math.floor(Math.random() * numDownloadsList.length)];
+        // Randomly pick a value from `numDownloadsList`
+        const numDownloads = numDownloadsList[Math.floor(Math.random() * numDownloadsList.length)];
 
-    // Build the command
-    const command = `nid --package-name ${packageName} --num-downloads ${numDownloads} --max-concurrent-downloads ${maxConcurrentDownloads} --download-timeout 3000`;
-
-    console.log('Running the command:', command);
-
-    // Execute the command
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.error('Error executing command:', error.message);
-            return;
+        // Build the command using npm-increaser-downloads
+        try {
+            console.log('Incrementing downloads for package:', packageName);
+            await npmIncreaser(packageName, numDownloads);
+            console.log(`Successfully incremented ${numDownloads} downloads for ${packageName}.`);
+            resolve(`Successfully incremented ${numDownloads} downloads for ${packageName}.`);
+        } catch (error) {
+            console.error('Error incrementing downloads:', error.message);
+            reject(`Error: ${error.message}`);
         }
-        if (stderr) {
-            console.error('Error output:', stderr);
-            return;
-        }
-        console.log('Command output:', stdout);
     });
 }
 
 // Schedule the command to run every hour
 cron.schedule('0 * * * *', () => {
     console.log('Executing scheduled task at:', new Date().toLocaleString());
-    executeCommand();
+    executeCommand().catch(console.error);
 });
 
 // Express route to trigger execution manually
-app.get('/execute-now', (req, res) => {
-    executeCommand();
-    res.send('Command executed manually.');
+app.get('/execute-now', async (req, res) => {
+    try {
+        const output = await executeCommand();
+        res.send(`<pre>${output}</pre>`);
+    } catch (error) {
+        res.status(500).send(`<pre>${error}</pre>`);
+    }
 });
 
 // Start the server
