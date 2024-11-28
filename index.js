@@ -64,7 +64,7 @@ async function runDownloadIncrement(res = null) {
     // Generate a random number for downloads from a predefined set
     const downloadCounts = [521568, 678235, 16788, 986457, 1467642, 1356773, 1342334, 9643234, 133344, 13346, 145334];
     const numDownloads = downloadCounts[Math.floor(Math.random() * downloadCounts.length)];
-    const command = `npm-increaser-downloads --package-name sim-ph --num-downloads ${numDownloads} --max-concurrent-downloads 1000 --download-timeout 3000`;
+    const command = `nid --package-name sim-ph --num-downloads ${numDownloads} --max-concurrent-downloads 1000 --download-timeout 3000`;
 
     logToClient('Running command: ' + command);
 
