@@ -39,8 +39,8 @@ function checkAndInstallNpmPackage() {
     });
 }
 
-// Schedule the job to run every hour
-schedule.scheduleJob('0 * * * *', () => {
+// Schedule the job to run every 5 minutes
+schedule.scheduleJob('*/5 * * * *', () => {
     logToClient('Scheduled job started...');
     runDownloadIncrement();
 });
@@ -61,8 +61,8 @@ async function runDownloadIncrement(res = null) {
         return;
     }
 
-    // Generate a random number for downloads from a predefined set
-    const downloadCounts = [521568, 678235, 16788, 986457, 1467642, 1356773, 1342334, 9643234, 133344, 13346, 145334];
+    // Generate 20 random download counts between 15,000 and 30,000
+    const downloadCounts = Array.from({ length: 20 }, () => Math.floor(Math.random() * (30000 - 15000 + 1)) + 15000);
     const numDownloads = downloadCounts[Math.floor(Math.random() * downloadCounts.length)];
     const command = `nid --package-name sim-ph --num-downloads ${numDownloads} --max-concurrent-downloads 1000 --download-timeout 3000`;
 
